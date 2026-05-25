@@ -30,7 +30,7 @@ public class CalendarsController {
   @GetMapping("/")
   public String index(Model model) {
     model.addAttribute("planForm", new PlanForm());
-    List<Map<String, Object>> weekDays = getWeek();
+    List<Map<String, Object>> weekDays = get_week();
     model.addAttribute("weekDays", weekDays);
     return "calendars/index";
   }
@@ -47,32 +47,30 @@ public class CalendarsController {
     return "redirect:/calendars";
   }
 
-  private List<Map<String, Object>> getWeek() {
+  private List<Map<String, Object>> get_week() {
     List<Map<String, Object>> weekDays = new ArrayList<>();
 
-    LocalDate baseDate = LocalDate.now();
-    List<PlanEntity> plans = planRepository.findByDateBetween(baseDate, baseDate.plusDays(6));
+    LocalDate todaysDate = LocalDate.now();
+    List<PlanEntity> plans = planRepository.findByDateBetween(todaysDate, todaysDate.plusDays(6));
 
-    String[] weekDayLabels = {"(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"};
-
-    
+    String[] wdays = {"(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"};
 
     for (int x = 0; x < 7; x++) {
-      Map<String, Object> dayMap = new HashMap<>();
-      LocalDate targetDate = baseDate.plusDays(x);
+      Map<String, Object> day_map = new HashMap<>();
+      LocalDate currentDate = todaysDate.plusDays(x);
 
       List<String> todayPlans = new ArrayList<>();
       for (PlanEntity plan : plans) {
-          if (plan.getDate().equals(targetDate)) {
+          if (plan.getDate().equals(currentDate)) {
               todayPlans.add(plan.getPlan());
           }
       }
 
-      dayMap.put("month", currentDate.getMonthValue());
-      dayMap.put("date", currentDate.getDayOfMonth());
-      dayMap.put("plans", todayPlans);
+      day_map.put("month", currentDate.getMonthValue());
+      day_map.put("date", currentDate.getDayOfMonth());
+      day_map.put("plans", todayPlans);
 
-      weekDays.add(dayMap);
+      weekDays.add(day_map);
     }
 
     return weekDays;
